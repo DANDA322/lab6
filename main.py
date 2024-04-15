@@ -1,15 +1,15 @@
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import classification_report, accuracy_score, f1_score
 from sklearn.ensemble import RandomForestClassifier
 import logging
 import joblib
 from load import load_dataset
 
-number = 11
+number = 7
 MODEL_NAME = "model_" + str(number) + ".joblib"
 LOG_FILENAME = "model_" + str(number) + ".log"
-N_ESTIMATORS = 1000  # Дефолтное 500
-MAX_DEPTH = 2  # Дефолтное 20
+N_ESTIMATORS = 500  # Дефолтное 500
+MAX_DEPTH = 20  # Дефолтное 20
 MIN_SAMPLES_SPLIT = 30  # Дефолтное 10
 
 # Настройка логирования
@@ -42,27 +42,42 @@ model.fit(pic_train_flattened, label_train)
 
 # На валидационных данных
 label_pred_val = model.predict(pic_val_flattened)
-print(label_pred_val)
-print(label_val)
 accuracy_val = accuracy_score(label_val, label_pred_val)
+f1_val = f1_score(label_val, label_pred_val, average='weighted')  # Using weighted average for multi-class scenario
 logging.info(f'Точность на валидационных данных: {accuracy_val}')
+logging.info(f'F1 на валидационных данных:: {f1_val}')
 print(f'Точность на валидационных данных: {accuracy_val}')
+print(f'F1 на валидационных данных:: {f1_val}')
+report_val = classification_report(label_val, label_pred_val)
+logging.info('Classification на валидационных данных::\n' + report_val)
+print('Classification на валидационных данных:\n', report_val)
 
 # Тестирование на демонстрационных данных
 label_pred_demo = model.predict(pic_demo_flattened)
-print(label_pred_demo)
-print(label_demo)
+f1_demo = f1_score(label_demo, label_pred_demo, average='weighted')
 accuracy_demo = accuracy_score(label_demo, label_pred_demo)
 logging.info(f'Точность на демонстрационных данных: {accuracy_demo}')
 print(f'Точность на демонстрационных данных: {accuracy_demo}')
+logging.info(f'F1 на демонстрационных данных: {f1_demo}')
+print(f'F1 на демонстрационных данных: {f1_demo}')
+report_demo = classification_report(label_demo, label_pred_demo)
+logging.info('Classification на демонстрационных данных:\n' + report_demo)
+print('Classification на демонстрационных данных:\n', report_demo)
+
 
 # Тестирование на всех данных
 label_pred_all = model.predict(pic_flattened)
+f1_all = f1_score(labels, label_pred_all, average='weighted')
 print(label_pred_all)
 print(labels)
 accuracy_demo = accuracy_score(labels, label_pred_all)
 logging.info(f'Точность на всех данных: {accuracy_demo}')
 print(f'Точность на всех данных: {accuracy_demo}')
+logging.info(f'F1 score на всех данных: {f1_all}')
+print(f'F1 на всех данных: {f1_all}')
+report_all = classification_report(labels, label_pred_all)
+logging.info('Classification report на всех данных:\n' + report_all)
+print('Classification report на всех данных:\n', report_all)
 
 # Сохраняем модель
 joblib.dump(model, MODEL_NAME)
